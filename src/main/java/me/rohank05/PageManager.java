@@ -18,7 +18,7 @@ public class PageManager {
     public PageManager(){
         this.pagesData = new HashMap<>();
     }
-    public PageManager getINSTANCE() {
+    public static PageManager getINSTANCE() {
         if(INSTANCE == null){
             INSTANCE = new PageManager();
         }
