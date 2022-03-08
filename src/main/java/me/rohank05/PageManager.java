@@ -60,7 +60,6 @@ public class PageManager {
     }
 
     public void initListener(@NotNull ButtonInteractionEvent event){
-        event.deferReply(true).queue();
         Long messageId = event.getMessageIdLong();
         if(!this.pagesData.containsKey(messageId)) return;
         PagesData pagesData = this.pagesData.get(messageId);
