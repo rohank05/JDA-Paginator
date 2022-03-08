@@ -1,5 +1,6 @@
 package me.rohank05;
 
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -30,7 +31,7 @@ public class PageManager {
         try {
             Thread.sleep(timeout);
             this.pagesData.remove(message.getIdLong());
-            message.editMessageComponents(ActionRow.of()).queue();
+            message.editMessageComponents().queue();
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -59,45 +60,45 @@ public class PageManager {
     }
 
     public void initListener(@NotNull ButtonInteractionEvent event){
+        event.deferReply(true).queue();
         Long messageId = event.getMessageIdLong();
         if(!this.pagesData.containsKey(messageId)) return;
         PagesData pagesData = this.pagesData.get(messageId);
         if(pagesData.userId != null){
             if(!pagesData.userId.equals(event.getUser().getIdLong())) return;
         }
-        Message message = event.getMessage();
         if(event.getButton().getId().equals("forward")){
             MessageEmbed embed = pagesData.embeds.get(pagesData.page+1);
-            message.editMessageEmbeds(embed).queue();
+            MessageBuilder messageBuilder = new MessageBuilder().setEmbeds(embed);
             if(pagesData.page == 0){
-                message.editMessageComponents(ActionRow.of(
-                        Button.primary("backward", "backward").withEmoji(Emoji.fromMarkdown("⬅️")),
-                        Button.primary("forward", "forward").withEmoji(Emoji.fromMarkdown("➡️"))
-                )).queue();
+                messageBuilder.setActionRows(ActionRow.of(Button.primary("backward", "backward").withEmoji(Emoji.fromMarkdown("⬅️")),
+                        Button.primary("forward", "forward").withEmoji(Emoji.fromMarkdown("➡️"))));
             }
             if(pagesData.page == (pagesData.embeds.size() - 2)){
-                message.editMessageComponents(ActionRow.of(
+                messageBuilder.setActionRows(ActionRow.of(
                         Button.primary("backward", "backward").withEmoji(Emoji.fromMarkdown("⬅️")),
                         Button.primary("forward", "forward").withEmoji(Emoji.fromMarkdown("➡️")).asDisabled()
-                )).queue();
+                ));
             }
+            event.editMessage(messageBuilder.build()).queue();
             pagesData.increasePage();
         }
         else if(event.getButton().getId().equals("backward")){
             MessageEmbed embed = pagesData.embeds.get(pagesData.page-1);
-            message.editMessageEmbeds(embed).queue();
+            MessageBuilder messageBuilder = new MessageBuilder().setEmbeds(embed);
             if(pagesData.page == 1){
-                message.editMessageComponents(ActionRow.of(
+                messageBuilder.setActionRows(ActionRow.of(
                         Button.primary("backward", "backward").withEmoji(Emoji.fromMarkdown("⬅️")).asDisabled(),
                         Button.primary("forward", "forward").withEmoji(Emoji.fromMarkdown("➡️"))
-                )).queue();
+                ));
             }
             if(pagesData.page == pagesData.embeds.size() -1){
-                message.editMessageComponents(ActionRow.of(
+                messageBuilder.setActionRows(ActionRow.of(
                         Button.primary("backward", "backward").withEmoji(Emoji.fromMarkdown("⬅️")),
                         Button.primary("forward", "forward").withEmoji(Emoji.fromMarkdown("➡️"))
-                )).queue();
+                ));
             }
+            event.editMessage(messageBuilder.build()).queue();
             pagesData.decreasePage();
         }
     }

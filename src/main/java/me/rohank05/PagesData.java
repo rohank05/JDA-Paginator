@@ -22,6 +22,6 @@ public class PagesData {
     }
 
     public void decreasePage() {
-        page++;
+        page--;
     }
 }
